@@ -1,12 +1,12 @@
 import React, { useImperativeHandle, useRef ,forwardRef, useState } from "react";
 import "./ProgressArea.scss";
-import music1 from "../../music/music-1.mp3";
-import { useDispatch } from "react-redux";
-import { playMusic, stopMusic } from "../../store/musicPlayerReducer";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { playMusic, stopMusic  , nextMusic} from "../../store/musicPlayerReducer";
 function ProgressArea(props, ref) {
  const audio = useRef();
  const progressBar = useRef();
  const dispatch = useDispatch()
+ const {playList, currentIndex} = useSelector(state => ({playList: state.playList , currentIndex:state.currentIndex}) , shallowEqual) //사용이유 : 새로운object를 리턴하므로 매번 리랜더링이 발생하여 누수가 생김  shallowEqual : 가장 겉의 값만 비교 {playList의 값 , currentIndex의 값}
  const [currentTime , setCurrentTime] = useState('00:00');
  const [duration , setDuration ] = useState('00:00');
 
@@ -43,6 +43,10 @@ function ProgressArea(props, ref) {
     setDuration(convertFormat(duration));
  }
 
+ const onEnded =() => {
+    dispatch(nextMusic())
+ }
+
  const onClickProgress = (event) => {
   const progressBarWidth = event.currentTarget.clientWidth;
   const offsetX = event.nativeEvent.offsetX;
@@ -59,10 +63,11 @@ function ProgressArea(props, ref) {
         <audio
           autoPlay
           ref = {audio}
-          src = {music1}
+          src = {playList[currentIndex].src}
           onPlay= {onPlay}
           onPause = {onPause}
           onTimeUpdate={onTimeUpdate}
+          onEnded = {onEnded} 
         ></audio>
       </div>
       <div className="music-timer">

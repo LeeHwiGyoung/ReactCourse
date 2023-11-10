@@ -9,7 +9,21 @@ import QueueMusic from "@mui/icons-material/QueueMusic";
 import ShuffleIcon from "@mui/icons-material/Shuffle";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import "./Controls.scss";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { prevMusic  , nextMusic, setRepeat} from "../../store/musicPlayerReducer";
+
+const RepeatButton =  ({repeat , ...props}) => {
+  switch (repeat){
+    case 'ALL':
+      return  <RepeatIcon sx={{ fontSize: 30, cursor: "pointer" }} {...props}/>
+    case 'ONE':
+      return <RepeatOneIcon sx = {{fontSize : 30 , cursor : "pointer"}} {...props}/>
+    case "SHUFFLE":
+      return <ShuffleIcon sx = {{fontSize : 30 , cursor : "pointer"}} {...props}/>
+    default:
+      return  null;
+  }
+} 
 
 const Controls = ({
   showMusicList,
@@ -19,15 +33,27 @@ const Controls = ({
   pause,
   changeVolume,
 }) => {
-
+  
     const playing = useSelector((state)=> state.playing);
+    const repeat = useSelector((state)=> state.repeat);
+    const dispatch = useDispatch();
 
+    const onClickRepeat = () => {
+      dispatch(setRepeat())
+    }
     const onClickPlay = () => {
       play();
     }
     
     const onClickPause = () => {
       pause();
+    }
+    const onClickNext = () => {
+      dispatch(nextMusic());
+    }
+    
+    const onClickPrev = () => {
+      dispatch(prevMusic());
     }
 
     const onChagneVolume = (event) =>{
@@ -39,10 +65,12 @@ const Controls = ({
         sx={{ fontSize: 30, cursor: "pointer" }}
     
       />
-      <RepeatIcon sx={{ fontSize: 30, cursor: "pointer" }} />
+      <RepeatButton repeat = {repeat} 
+       onClick = {onClickRepeat}/>
+
       <SkipPrevious
         sx={{ fontSize: 30, cursor: "pointer" }}
-
+        onClick = {onClickPrev}
       />
       {playing ? (
         <PauseIcon
@@ -58,7 +86,7 @@ const Controls = ({
       )}
       <SkipNext
         sx={{ fontSize: 30, cursor: "pointer" }}
-
+        onClick = {onClickNext}
       />
       <div className="volume-container">
         <VolumeUpIcon sx={{ fontSize: 20 }} />
